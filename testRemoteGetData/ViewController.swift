@@ -25,20 +25,20 @@ class ViewController: UIViewController, URLSessionDelegate, URLSessionDownloadDe
             return
         }
         print("Complete")
-        
+        parseJson(dataURL: localDataURL!)
     }
     
-    func parseJson(localDataURL: String) -> String{
-        let localURL = URL(string:localDataURL)
+    func parseJson(dataURL: URL){
         let localData: Data?
         var dataString: String?
         do{
-            localData = try Data(contentsOf: localURL!)
-            dataString = try JSONSerialization.jsonObject(with: localData!, options: .allowFragments) as? String
-        }catch{
-            print("data wrong")
+            localData = try Data(contentsOf: dataURL)
+            try JSONSerialization.jsonObject(with: localData!, options: .allowFragments)
+        }catch let error as NSError{
+            print(error)
+            return
         }
-        return dataString!
+        print("parse Done")
     }
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
@@ -52,6 +52,7 @@ class ViewController: UIViewController, URLSessionDelegate, URLSessionDownloadDe
         localDataURL = documentURL?.appendingPathComponent("hello.json")
         theDataURLString = "http://localhost:8080/hello"
         normalGet(myURL: theDataURLString!)
+        label = UILabel()
     }
     
     override func didReceiveMemoryWarning() {
