@@ -13,6 +13,8 @@ class ViewController: UIViewController, URLSessionDelegate, URLSessionDownloadDe
     var documentURL: URL?
     var theDataURLString: String?
     var localDataURL: URL?
+    var downloadFinished: Bool?
+    var checkDownloadFinished: Timer?
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         var data: Data?
@@ -25,6 +27,15 @@ class ViewController: UIViewController, URLSessionDelegate, URLSessionDownloadDe
             return
         }
         print("Complete")
+        downloadFinished = true
+    }
+    
+    @objc func checkDownload(){
+        if downloadFinished!{
+            self.label?.text = parseJson(dataURL: localDataURL!)
+            self.view.addSubview(self.label!)
+            self.checkDownloadFinished?.invalidate()
+        }
     }
     
     func parseJson(dataURL: URL) -> String{
@@ -48,12 +59,14 @@ class ViewController: UIViewController, URLSessionDelegate, URLSessionDownloadDe
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        downloadFinished = false
         let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         documentURL = URL.init(fileURLWithPath: urls[0].absoluteString)
         localDataURL = documentURL?.appendingPathComponent("hello.json")
         theDataURLString = "http://localhost:8080/hello"
         normalGet(myURL: theDataURLString!)
-        label = UILabel()
+        label = UILabel(frame: CGRect(x: 150, y: 150, width: 100, height: 30))
+        checkDownloadFinished = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.checkDownload), userInfo: nil, repeats: true)
     }
     
     override func didReceiveMemoryWarning() {
