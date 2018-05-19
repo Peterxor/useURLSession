@@ -25,20 +25,21 @@ class ViewController: UIViewController, URLSessionDelegate, URLSessionDownloadDe
             return
         }
         print("Complete")
-        parseJson(dataURL: localDataURL!)
     }
     
-    func parseJson(dataURL: URL){
+    func parseJson(dataURL: URL) -> String{
         let localData: Data?
-        var dataString: String?
+        var data: [String:String]
         do{
             localData = try Data(contentsOf: dataURL)
-            try JSONSerialization.jsonObject(with: localData!, options: .allowFragments)
+            data = try JSONSerialization.jsonObject(with: localData!, options: .allowFragments) as! [String:String]
         }catch let error as NSError{
             print(error)
-            return
+            return error.localizedDescription
         }
+        print(data)
         print("parse Done")
+        return data["content"]!
     }
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
