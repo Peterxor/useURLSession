@@ -10,17 +10,18 @@ import UIKit
 
 class ViewController: UIViewController, URLSessionDelegate, URLSessionDownloadDelegate{
     var label: UILabel?
+    var documentURL: URL?
     var theDataURLString: String?
     var localDataURL: URL?
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         var data: Data?
-        print(localDataURL)
+        
         do{
             data = try Data.init(contentsOf: location)
-            try data?.write(to: localDataURL!, options: .atomicWrite)
-        }catch{
-            print("Something Wrong")
+            try data?.write(to: localDataURL!, options: .atomic)
+        }catch let error as NSError{
+            print(error)
             return
         }
         print("Complete")
@@ -47,7 +48,8 @@ class ViewController: UIViewController, URLSessionDelegate, URLSessionDownloadDe
     override func viewDidLoad() {
         super.viewDidLoad()
         let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        self.localDataURL = urls[urls.count - 1]
+        documentURL = URL.init(fileURLWithPath: urls[0].absoluteString)
+        localDataURL = documentURL?.appendingPathComponent("hello.json")
         theDataURLString = "http://localhost:8080/hello"
         normalGet(myURL: theDataURLString!)
     }
